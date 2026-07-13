@@ -69,6 +69,7 @@ const MenuServicos = () => {
         <h1 style={{
           fontSize: 'clamp(3rem, 8vw, 5rem)',
           fontWeight: '900',
+          fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
           background: 'linear-gradient(135deg, #ffffff, #fbbf24)',
           WebkitBackgroundClip: 'text',
           backgroundClip: 'text',
