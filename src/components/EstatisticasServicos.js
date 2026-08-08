@@ -20,6 +20,12 @@ const EstatisticasServicos = () => {
   const [loading, setLoading] = useState(true);
   const [agendamentos, setAgendamentos] = useState([]);
 
+  // Função para remover emojis e caracteres especiais
+  const limparEmojis = (texto) => {
+    if (!texto) return '-';
+    return texto.replace(/[^\w\s]/g, '').trim();
+  };
+
   useEffect(() => {
     carregarDados();
   }, []);
@@ -119,7 +125,7 @@ const EstatisticasServicos = () => {
             topServicos.map(([servico, qtd], idx) => (
               <div key={idx} className="top-servico-item">
                 <span className="top-posicao">#{idx + 1}</span>
-                <span className="top-nome">{servico}</span>
+                <span className="top-nome">{limparEmojis(servico)}</span>  {/* ← limpeza aplicada */}
                 <span className="top-qtd">{qtd} solicitação(ões)</span>
               </div>
             ))

@@ -13,7 +13,7 @@ const MenuServicos = () => {
       </div>
 
       <div className="servicos-cards">
-        <Link to="/agendar" className="servicos-card Agendar-card">
+        <Link to="/agendar" className="servicos-card agendar-card">
           <div className="card-icon">
             <Clipboard size={48} strokeWidth={2} />
           </div>
@@ -21,7 +21,7 @@ const MenuServicos = () => {
           <span>Acessar →</span>
         </Link>
 
-        <Link to="/gerenciar" className="servicos-card Gerenciar-card">
+        <Link to="/gerenciar" className="servicos-card gerenciar-card">
           <div className="card-icon">
             <Settings size={48} strokeWidth={2} />
           </div>
@@ -29,7 +29,7 @@ const MenuServicos = () => {
           <span>Acessar →</span>
         </Link>
 
-        <Link to="/estatisticas" className="servicos-card Estatisticas-card">
+        <Link to="/estatisticas" className="servicos-card estatisticas-card">
           <div className="card-icon">
             <BarChart size={48} strokeWidth={2} />
           </div>

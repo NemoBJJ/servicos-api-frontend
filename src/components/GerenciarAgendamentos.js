@@ -22,6 +22,12 @@ const GerenciarAgendamentos = () => {
   const [filtroStatus, setFiltroStatus] = useState('TODOS');
   const [stats, setStats] = useState({ pendentes: 0, confirmados: 0, concluidos: 0, cancelados: 0 });
 
+  // Função para remover emojis e caracteres especiais
+  const limparEmojis = (texto) => {
+    if (!texto) return '-';
+    return texto.replace(/[^\w\s]/g, '').trim();
+  };
+
   useEffect(() => {
     carregarAgendamentos();
   }, []);
@@ -184,7 +190,7 @@ const GerenciarAgendamentos = () => {
                     <Calendar size={14} /> {formatarDataHora(a.dataAgendamento, a.horaAgendamento)}
                   </div>
                   <div>
-                    <Scissors size={14} /> {a.tipoServico}
+                    <Scissors size={14} /> {limparEmojis(a.tipoServico)}  {/* ← limpeza aplicada */}
                   </div>
                   {a.observacao && (
                     <div>
