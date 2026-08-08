@@ -1,6 +1,21 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import api from '../api';
+import {
+  ArrowLeft,
+  Calendar,
+  User,
+  Mail,
+  Phone,
+  Scissors,
+  CalendarDays,
+  Clock,
+  FileText,
+  CheckCircle,
+  Plus,
+  AlertCircle
+} from 'lucide-react';
+import './AgendarServico.css';
 
 const AgendarServico = () => {
   const [formData, setFormData] = useState({
@@ -17,14 +32,14 @@ const AgendarServico = () => {
   const [erro, setErro] = useState('');
 
   const tiposServico = [
-    '💇 Corte de Cabelo',
-    '💅 Manicure/Pedicure',
-    '💆 Massagem',
-    '👨‍⚕️ Consulta Psiquiátrica',
-    '🦷 Consulta Odontológica',
-    '💊 Consulta Nutricional',
-    '🏋️ Personal Trainer',
-    '📝 Outro'
+    'Corte de Cabelo',
+    'Manicure/Pedicure',
+    'Massagem',
+    'Consulta Psiquiátrica',
+    'Consulta Odontológica',
+    'Consulta Nutricional',
+    'Personal Trainer',
+    'Outro'
   ];
 
   const handleChange = (e) => {
@@ -65,76 +80,138 @@ const AgendarServico = () => {
 
   if (enviado) {
     return (
-      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem' }}>
-        <div style={{ background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(10px)', borderRadius: '1.5rem', padding: '2rem', textAlign: 'center', border: '1px solid rgba(34, 197, 94, 0.3)', maxWidth: '500px' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>✅</div>
-          <h2 style={{ color: '#22c55e', marginBottom: '1rem' }}>Solicitação Enviada com Sucesso!</h2>
-          <p style={{ color: '#94a3b8', marginBottom: '1.5rem' }}>Sua solicitação de agendamento foi recebida.<br/>Em breve entraremos em contato para confirmar.</p>
-          <button onClick={() => setEnviado(false)} style={{ display: 'inline-block', padding: '0.75rem 1.5rem', margin: '0.5rem', borderRadius: '0.75rem', cursor: 'pointer', background: 'linear-gradient(135deg, #22c55e, #16a34a)', color: 'white', border: 'none' }}>➕ Novo Agendamento</button>
-          <Link to="/servicos" style={{ display: 'inline-block', padding: '0.75rem 1.5rem', margin: '0.5rem', borderRadius: '0.75rem', cursor: 'pointer', background: 'rgba(100, 116, 139, 0.3)', border: '1px solid rgba(255, 193, 7, 0.5)', color: '#f8fafc', textDecoration: 'none' }}>← Voltar ao Menu</Link>
+      <div className="agendar-sucesso">
+        <div className="sucesso-card">
+          <div className="sucesso-icon"><CheckCircle size={56} /></div>
+          <h2>Solicitação Enviada com Sucesso!</h2>
+          <p>Sua solicitação de agendamento foi recebida.<br/>Em breve entraremos em contato para confirmar.</p>
+          <div className="sucesso-acoes">
+            <button onClick={() => setEnviado(false)} className="btn-novo">
+              <Plus size={18} /> Novo Agendamento
+            </button>
+            <Link to="/servicos" className="btn-voltar-sucesso">
+              <ArrowLeft size={18} /> Voltar ao Menu
+            </Link>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%)', padding: '2rem' }}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '2rem', flexWrap: 'wrap', gap: '1rem' }}>
+    <div className="agendar-container">
+      <div className="agendar-header">
         <Link to="/servicos">
-          <button style={{ padding: '0.5rem 1.25rem', fontSize: '0.875rem', fontWeight: '600', color: '#f8fafc', background: 'rgba(100, 116, 139, 0.3)', border: '1px solid rgba(255, 193, 7, 0.5)', borderRadius: '9999px', cursor: 'pointer' }}>← Voltar ao Menu</button>
+          <button className="btn-voltar">
+            <ArrowLeft size={18} />
+            Voltar ao Menu
+          </button>
         </Link>
-        <h1 style={{ fontSize: '2rem', fontWeight: 'bold', background: 'linear-gradient(135deg, #fbbf24, #f59e0b)', WebkitBackgroundClip: 'text', backgroundClip: 'text', color: 'transparent' }}>📅 Agendamento de Serviços</h1>
+        <h1>
+          <Calendar size={28} className="icon-header" />
+          Agendamento de Serviços
+        </h1>
       </div>
 
-      <div style={{ background: 'rgba(15, 23, 42, 0.8)', backdropFilter: 'blur(10px)', borderRadius: '1.5rem', padding: '2rem', border: '1px solid rgba(255, 193, 7, 0.2)', maxWidth: '700px', margin: '0 auto' }}>
-        <p style={{ textAlign: 'center', color: '#94a3b8', marginBottom: '1.5rem' }}>Preencha os dados abaixo para solicitar seu horário</p>
+      <div className="agendar-card">
+        <p className="agendar-subtitulo">Preencha os dados abaixo para solicitar seu horário</p>
         
-        {erro && <div style={{ background: 'rgba(239, 68, 68, 0.2)', border: '1px solid rgba(239, 68, 68, 0.4)', borderRadius: '0.75rem', padding: '0.75rem', color: '#f87171', textAlign: 'center', marginBottom: '1rem' }}>{erro}</div>}
+        {erro && (
+          <div className="erro-mensagem">
+            <AlertCircle size={18} />
+            {erro}
+          </div>
+        )}
 
-        <form onSubmit={handleSubmit}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-              <label style={{ fontSize: '0.875rem', color: '#94a3b8', fontWeight: '500' }}>Nome Completo *</label>
-              <input type="text" name="clienteNome" value={formData.clienteNome} onChange={handleChange} placeholder="Seu nome" required style={{ padding: '0.75rem', background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(255, 193, 7, 0.3)', borderRadius: '0.75rem', color: '#f8fafc' }} />
+        <form onSubmit={handleSubmit} className="agendar-form">
+          <div className="form-row">
+            <div className="form-group">
+              <label><User size={16} /> Nome Completo *</label>
+              <input
+                type="text"
+                name="clienteNome"
+                value={formData.clienteNome}
+                onChange={handleChange}
+                placeholder="Seu nome"
+                required
+              />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-              <label style={{ fontSize: '0.875rem', color: '#94a3b8', fontWeight: '500' }}>E-mail *</label>
-              <input type="email" name="clienteEmail" value={formData.clienteEmail} onChange={handleChange} placeholder="seu@email.com" required style={{ padding: '0.75rem', background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(255, 193, 7, 0.3)', borderRadius: '0.75rem', color: '#f8fafc' }} />
+            <div className="form-group">
+              <label><Mail size={16} /> E-mail *</label>
+              <input
+                type="email"
+                name="clienteEmail"
+                value={formData.clienteEmail}
+                onChange={handleChange}
+                placeholder="seu@email.com"
+                required
+              />
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-              <label style={{ fontSize: '0.875rem', color: '#94a3b8', fontWeight: '500' }}>Telefone (WhatsApp)</label>
-              <input type="tel" name="clienteTelefone" value={formData.clienteTelefone} onChange={handleChange} placeholder="(11) 99999-9999" style={{ padding: '0.75rem', background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(255, 193, 7, 0.3)', borderRadius: '0.75rem', color: '#f8fafc' }} />
+          <div className="form-row">
+            <div className="form-group">
+              <label><Phone size={16} /> Telefone (WhatsApp)</label>
+              <input
+                type="tel"
+                name="clienteTelefone"
+                value={formData.clienteTelefone}
+                onChange={handleChange}
+                placeholder="(11) 99999-9999"
+              />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-              <label style={{ fontSize: '0.875rem', color: '#94a3b8', fontWeight: '500' }}>Tipo de Serviço *</label>
-              <select name="tipoServico" value={formData.tipoServico} onChange={handleChange} required style={{ padding: '0.75rem', background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(255, 193, 7, 0.3)', borderRadius: '0.75rem', color: '#f8fafc' }}>
+            <div className="form-group">
+              <label><Scissors size={16} /> Tipo de Serviço *</label>
+              <select
+                name="tipoServico"
+                value={formData.tipoServico}
+                onChange={handleChange}
+                required
+              >
                 <option value="">Selecione...</option>
                 {tiposServico.map(t => <option key={t} value={t}>{t}</option>)}
               </select>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '1rem' }}>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-              <label style={{ fontSize: '0.875rem', color: '#94a3b8', fontWeight: '500' }}>Data *</label>
-              <input type="date" name="dataAgendamento" value={formData.dataAgendamento} onChange={handleChange} min={hoje} required style={{ padding: '0.75rem', background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(255, 193, 7, 0.3)', borderRadius: '0.75rem', color: '#f8fafc' }} />
+          <div className="form-row">
+            <div className="form-group">
+              <label><CalendarDays size={16} /> Data *</label>
+              <input
+                type="date"
+                name="dataAgendamento"
+                value={formData.dataAgendamento}
+                onChange={handleChange}
+                min={hoje}
+                required
+              />
             </div>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-              <label style={{ fontSize: '0.875rem', color: '#94a3b8', fontWeight: '500' }}>Horário *</label>
-              <input type="time" name="horaAgendamento" value={formData.horaAgendamento} onChange={handleChange} min={horaMinima} required style={{ padding: '0.75rem', background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(255, 193, 7, 0.3)', borderRadius: '0.75rem', color: '#f8fafc' }} />
+            <div className="form-group">
+              <label><Clock size={16} /> Horário *</label>
+              <input
+                type="time"
+                name="horaAgendamento"
+                value={formData.horaAgendamento}
+                onChange={handleChange}
+                min={horaMinima}
+                required
+              />
             </div>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginBottom: '1rem' }}>
-            <label style={{ fontSize: '0.875rem', color: '#94a3b8', fontWeight: '500' }}>Observações (opcional)</label>
-            <textarea name="observacao" rows="3" value={formData.observacao} onChange={handleChange} placeholder="Alguma informação adicional?" style={{ padding: '0.75rem', background: 'rgba(30, 41, 59, 0.6)', border: '1px solid rgba(255, 193, 7, 0.3)', borderRadius: '0.75rem', color: '#f8fafc' }}></textarea>
+          <div className="form-group full">
+            <label><FileText size={16} /> Observações (opcional)</label>
+            <textarea
+              name="observacao"
+              rows="3"
+              value={formData.observacao}
+              onChange={handleChange}
+              placeholder="Alguma informação adicional?"
+            />
           </div>
 
-          <button type="submit" disabled={loading} style={{ width: '100%', padding: '0.875rem', background: 'linear-gradient(135deg, #f59e0b, #d97706)', border: 'none', borderRadius: '0.75rem', color: 'white', fontWeight: '600', fontSize: '1rem', cursor: 'pointer', marginTop: '1rem' }}>
-            {loading ? 'Enviando...' : '📅 Solicitar Agendamento'}
+          <button type="submit" disabled={loading} className="btn-enviar">
+            {loading ? 'Enviando...' : <><Calendar size={18} /> Solicitar Agendamento</>}
           </button>
         </form>
       </div>
