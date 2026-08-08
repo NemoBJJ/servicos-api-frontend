@@ -6,10 +6,17 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 16px;
+  font-size: 16px; /* tamanho base para mobile (perfeito) */
   line-height: 1.6;
   background: #0f172a;
   color: #f8fafc;
+}
+
+/* Aumenta a fonte APENAS em telas maiores que 768px (desktop/tablet) */
+@media (min-width: 768px) {
+  body {
+    font-size: 18px; /* mais confortável para desktop */
+  }
 }
 
 code {
