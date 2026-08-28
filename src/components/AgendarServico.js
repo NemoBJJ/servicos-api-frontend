@@ -7,7 +7,7 @@ import {
   User,
   Mail,
   Phone,
-  Scissors,
+  Wrench,
   CalendarDays,
   Clock,
   FileText,
@@ -27,37 +27,41 @@ const AgendarServico = () => {
     horaAgendamento: '',
     observacao: ''
   });
+
   const [enviado, setEnviado] = useState(false);
   const [loading, setLoading] = useState(false);
   const [erro, setErro] = useState('');
 
-  const tiposServico = [
-    'Corte de Cabelo',
-    'Manicure/Pedicure',
-    'Massagem',
-    'Consulta Psiquiátrica',
-    'Consulta Odontológica',
-    'Consulta Nutricional',
-    'Personal Trainer',
-    'Outro'
-  ];
-
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
+
     setErro('');
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!formData.clienteNome || !formData.clienteEmail || !formData.tipoServico || !formData.dataAgendamento || !formData.horaAgendamento) {
+
+    if (
+      !formData.clienteNome ||
+      !formData.clienteEmail ||
+      !formData.tipoServico ||
+      !formData.dataAgendamento ||
+      !formData.horaAgendamento
+    ) {
       setErro('Preencha todos os campos obrigatórios!');
       return;
     }
-    
+
     setLoading(true);
+
     try {
       await api.post('/servicos/agendar', formData);
+
       setEnviado(true);
+
       setFormData({
         clienteNome: '',
         clienteEmail: '',
@@ -76,22 +80,45 @@ const AgendarServico = () => {
   };
 
   const hoje = new Date().toISOString().split('T')[0];
-  const horaMinima = `${String(new Date().getHours()).padStart(2, '0')}:00`;
+
+  const horaMinima =
+    `${String(new Date().getHours()).padStart(2, '0')}:00`;
 
   if (enviado) {
     return (
       <div className="agendar-sucesso">
         <div className="sucesso-card">
-          <div className="sucesso-icon"><CheckCircle size={56} /></div>
+
+          <div className="sucesso-icon">
+            <CheckCircle size={56} />
+          </div>
+
           <h2>Solicitação Enviada com Sucesso!</h2>
-          <p>Sua solicitação de agendamento foi recebida.<br/>Em breve entraremos em contato para confirmar.</p>
+
+          <p>
+            Sua solicitação de agendamento foi recebida.
+            <br />
+            Em breve entraremos em contato para confirmar.
+          </p>
+
           <div className="sucesso-acoes">
-            <button onClick={() => setEnviado(false)} className="btn-novo">
-              <Plus size={18} /> Novo Agendamento
+
+            <button
+              onClick={() => setEnviado(false)}
+              className="btn-novo"
+            >
+              <Plus size={18} />
+              Novo Agendamento
             </button>
-            <Link to="/servicos" className="btn-voltar-sucesso">
-              <ArrowLeft size={18} /> Voltar ao Menu
+
+            <Link
+              to="/servicos"
+              className="btn-voltar-sucesso"
+            >
+              <ArrowLeft size={18} />
+              Voltar ao Menu
             </Link>
+
           </div>
         </div>
       </div>
@@ -100,22 +127,32 @@ const AgendarServico = () => {
 
   return (
     <div className="agendar-container">
+
       <div className="agendar-header">
+
         <Link to="/servicos">
           <button className="btn-voltar">
             <ArrowLeft size={18} />
             Voltar ao Menu
           </button>
         </Link>
+
         <h1>
-          <Calendar size={28} className="icon-header" />
+          <Calendar
+            size={28}
+            className="icon-header"
+          />
           Agendamento de Serviços
         </h1>
+
       </div>
 
       <div className="agendar-card">
-        <p className="agendar-subtitulo">Preencha os dados abaixo para solicitar seu horário</p>
-        
+
+        <p className="agendar-subtitulo">
+          Preencha os dados abaixo para solicitar seu horário
+        </p>
+
         {erro && (
           <div className="erro-mensagem">
             <AlertCircle size={18} />
@@ -123,10 +160,20 @@ const AgendarServico = () => {
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="agendar-form">
+        <form
+          onSubmit={handleSubmit}
+          className="agendar-form"
+        >
+
           <div className="form-row">
+
             <div className="form-group">
-              <label><User size={16} /> Nome Completo *</label>
+
+              <label>
+                <User size={16} />
+                Nome Completo *
+              </label>
+
               <input
                 type="text"
                 name="clienteNome"
@@ -135,9 +182,16 @@ const AgendarServico = () => {
                 placeholder="Seu nome"
                 required
               />
+
             </div>
+
             <div className="form-group">
-              <label><Mail size={16} /> E-mail *</label>
+
+              <label>
+                <Mail size={16} />
+                E-mail *
+              </label>
+
               <input
                 type="email"
                 name="clienteEmail"
@@ -146,12 +200,20 @@ const AgendarServico = () => {
                 placeholder="seu@email.com"
                 required
               />
+
             </div>
+
           </div>
 
           <div className="form-row">
+
             <div className="form-group">
-              <label><Phone size={16} /> Telefone (WhatsApp)</label>
+
+              <label>
+                <Phone size={16} />
+                Telefone (WhatsApp)
+              </label>
+
               <input
                 type="tel"
                 name="clienteTelefone"
@@ -159,24 +221,38 @@ const AgendarServico = () => {
                 onChange={handleChange}
                 placeholder="(11) 99999-9999"
               />
+
             </div>
+
             <div className="form-group">
-              <label><Scissors size={16} /> Tipo de Serviço *</label>
-              <select
+
+              <label>
+                <Wrench size={16} />
+                Tipo de Serviço *
+              </label>
+
+              <input
+                type="text"
                 name="tipoServico"
                 value={formData.tipoServico}
                 onChange={handleChange}
+                placeholder="Ex.: troca de óleo, consulta, manutenção..."
                 required
-              >
-                <option value="">Selecione...</option>
-                {tiposServico.map(t => <option key={t} value={t}>{t}</option>)}
-              </select>
+              />
+
             </div>
+
           </div>
 
           <div className="form-row">
+
             <div className="form-group">
-              <label><CalendarDays size={16} /> Data *</label>
+
+              <label>
+                <CalendarDays size={16} />
+                Data *
+              </label>
+
               <input
                 type="date"
                 name="dataAgendamento"
@@ -185,9 +261,16 @@ const AgendarServico = () => {
                 min={hoje}
                 required
               />
+
             </div>
+
             <div className="form-group">
-              <label><Clock size={16} /> Horário *</label>
+
+              <label>
+                <Clock size={16} />
+                Horário *
+              </label>
+
               <input
                 type="time"
                 name="horaAgendamento"
@@ -196,11 +279,18 @@ const AgendarServico = () => {
                 min={horaMinima}
                 required
               />
+
             </div>
+
           </div>
 
           <div className="form-group full">
-            <label><FileText size={16} /> Observações (opcional)</label>
+
+            <label>
+              <FileText size={16} />
+              Observações (opcional)
+            </label>
+
             <textarea
               name="observacao"
               rows="3"
@@ -208,13 +298,28 @@ const AgendarServico = () => {
               onChange={handleChange}
               placeholder="Alguma informação adicional?"
             />
+
           </div>
 
-          <button type="submit" disabled={loading} className="btn-enviar">
-            {loading ? 'Enviando...' : <><Calendar size={18} /> Solicitar Agendamento</>}
+          <button
+            type="submit"
+            disabled={loading}
+            className="btn-enviar"
+          >
+            {loading ? (
+              'Enviando...'
+            ) : (
+              <>
+                <Calendar size={18} />
+                Solicitar Agendamento
+              </>
+            )}
           </button>
+
         </form>
+
       </div>
+
     </div>
   );
 };
