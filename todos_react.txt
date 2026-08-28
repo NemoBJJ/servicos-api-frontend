@@ -1,0 +1,879 @@
+﻿===== C:\Users\Nemo\Desktop\erp-system\servicos-api-frontend\src\api.js =====
+import axios from 'axios';
+
+const isDevelopment =
+  window.location.hostname === 'localhost' ||
+  window.location.hostname === '127.0.0.1';
+
+const BASE_URL = isDevelopment
+  ? 'http://localhost:8084/api'
+  : 'https://servicos-container.neemindev.com/api';
+
+const api = axios.create({
+  baseURL: BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
+
+export default api;
+
+===== C:\Users\Nemo\Desktop\erp-system\servicos-api-frontend\src\App.js =====
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import MenuServicos from './components/MenuServicos';
+import AgendarServico from './components/AgendarServico';
+import GerenciarAgendamentos from './components/GerenciarAgendamentos';
+import EstatisticasServicos from './components/EstatisticasServicos';
+
+function App() {
+  return (
+    <Router>
+      <Routes>
+        <Route path="/servicos" element={<MenuServicos />} />
+        <Route path="/agendar" element={<AgendarServico />} />
+        <Route path="/gerenciar" element={<GerenciarAgendamentos />} />
+        <Route path="/estatisticas" element={<EstatisticasServicos />} />
+        <Route path="/" element={<MenuServicos />} />
+      </Routes>
+    </Router>
+  );
+}
+
+export default App;
+
+===== C:\Users\Nemo\Desktop\erp-system\servicos-api-frontend\src\App.test.js =====
+import { render, screen } from '@testing-library/react';
+import App from './App';
+
+test('renders learn react link', () => {
+  render(<App />);
+  const linkElement = screen.getByText(/learn react/i);
+  expect(linkElement).toBeInTheDocument();
+});
+
+===== C:\Users\Nemo\Desktop\erp-system\servicos-api-frontend\src\index.js =====
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App';
+
+const root = ReactDOM.createRoot(document.getElementById('root'));
+root.render(
+  <React.StrictMode>
+    <App />
+  </React.StrictMode>
+);
+
+===== C:\Users\Nemo\Desktop\erp-system\servicos-api-frontend\src\reportWebVitals.js =====
+const reportWebVitals = onPerfEntry => {
+  if (onPerfEntry && onPerfEntry instanceof Function) {
+    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
+      getCLS(onPerfEntry);
+      getFID(onPerfEntry);
+      getFCP(onPerfEntry);
+      getLCP(onPerfEntry);
+      getTTFB(onPerfEntry);
+    });
+  }
+};
+
+export default reportWebVitals;
+
+===== C:\Users\Nemo\Desktop\erp-system\servicos-api-frontend\src\setupTests.js =====
+// jest-dom adds custom jest matchers for asserting on DOM nodes.
+// allows you to do things like:
+// expect(element).toHaveTextContent(/react/i)
+// learn more: https://github.com/testing-library/jest-dom
+import '@testing-library/jest-dom';
+
+===== C:\Users\Nemo\Desktop\erp-system\servicos-api-frontend\src\components\AgendarServico.js =====
+import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../api';
+import {
+  ArrowLeft,
+  Calendar,
+  User,
+  Mail,
+  Phone,
+  Scissors,
+  CalendarDays,
+  Clock,
+  FileText,
+  CheckCircle,
+  Plus,
+  AlertCircle
+} from 'lucide-react';
+import './AgendarServico.css';
+
+const AgendarServico = () => {
+  const [formData, setFormData] = useState({
+    clienteNome: '',
+    clienteEmail: '',
+    clienteTelefone: '',
+    tipoServico: '',
+    dataAgendamento: '',
+    horaAgendamento: '',
+    observacao: ''
+  });
+  const [enviado, setEnviado] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [erro, setErro] = useState('');
+
+  const tiposServico = [
+    'Corte de Cabelo',
+    'Manicure/Pedicure',
+    'Massagem',
+    'Consulta PsiquiÃ¡trica',
+    'Consulta OdontolÃ³gica',
+    'Consulta Nutricional',
+    'Personal Trainer',
+    'Outro'
+  ];
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    setErro('');
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!formData.clienteNome || !formData.clienteEmail || !formData.tipoServico || !formData.dataAgendamento || !formData.horaAgendamento) {
+      setErro('Preencha todos os campos obrigatÃ³rios!');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      await api.post('/servicos/agendar', formData);
+      setEnviado(true);
+      setFormData({
+        clienteNome: '',
+        clienteEmail: '',
+        clienteTelefone: '',
+        tipoServico: '',
+        dataAgendamento: '',
+        horaAgendamento: '',
+        observacao: ''
+      });
+    } catch (error) {
+      console.error('Erro ao agendar:', error);
+      setErro('Erro ao agendar. Tente novamente.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const hoje = new Date().toISOString().split('T')[0];
+  const horaMinima = `${String(new Date().getHours()).padStart(2, '0')}:00`;
+
+  if (enviado) {
+    return (
+      <div className="agendar-sucesso">
+        <div className="sucesso-card">
+          <div className="sucesso-icon"><CheckCircle size={56} /></div>
+          <h2>SolicitaÃ§Ã£o Enviada com Sucesso!</h2>
+          <p>Sua solicitaÃ§Ã£o de agendamento foi recebida.<br/>Em breve entraremos em contato para confirmar.</p>
+          <div className="sucesso-acoes">
+            <button onClick={() => setEnviado(false)} className="btn-novo">
+              <Plus size={18} /> Novo Agendamento
+            </button>
+            <Link to="/servicos" className="btn-voltar-sucesso">
+              <ArrowLeft size={18} /> Voltar ao Menu
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="agendar-container">
+      <div className="agendar-header">
+        <Link to="/servicos">
+          <button className="btn-voltar">
+            <ArrowLeft size={18} />
+            Voltar ao Menu
+          </button>
+        </Link>
+        <h1>
+          <Calendar size={28} className="icon-header" />
+          Agendamento de ServiÃ§os
+        </h1>
+      </div>
+
+      <div className="agendar-card">
+        <p className="agendar-subtitulo">Preencha os dados abaixo para solicitar seu horÃ¡rio</p>
+        
+        {erro && (
+          <div className="erro-mensagem">
+            <AlertCircle size={18} />
+            {erro}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="agendar-form">
+          <div className="form-row">
+            <div className="form-group">
+              <label><User size={16} /> Nome Completo *</label>
+              <input
+                type="text"
+                name="clienteNome"
+                value={formData.clienteNome}
+                onChange={handleChange}
+                placeholder="Seu nome"
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label><Mail size={16} /> E-mail *</label>
+              <input
+                type="email"
+                name="clienteEmail"
+                value={formData.clienteEmail}
+                onChange={handleChange}
+                placeholder="seu@email.com"
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label><Phone size={16} /> Telefone (WhatsApp)</label>
+              <input
+                type="tel"
+                name="clienteTelefone"
+                value={formData.clienteTelefone}
+                onChange={handleChange}
+                placeholder="(11) 99999-9999"
+              />
+            </div>
+            <div className="form-group">
+              <label><Scissors size={16} /> Tipo de ServiÃ§o *</label>
+              <select
+                name="tipoServico"
+                value={formData.tipoServico}
+                onChange={handleChange}
+                required
+              >
+                <option value="">Selecione...</option>
+                {tiposServico.map(t => <option key={t} value={t}>{t}</option>)}
+              </select>
+            </div>
+          </div>
+
+          <div className="form-row">
+            <div className="form-group">
+              <label><CalendarDays size={16} /> Data *</label>
+              <input
+                type="date"
+                name="dataAgendamento"
+                value={formData.dataAgendamento}
+                onChange={handleChange}
+                min={hoje}
+                required
+              />
+            </div>
+            <div className="form-group">
+              <label><Clock size={16} /> HorÃ¡rio *</label>
+              <input
+                type="time"
+                name="horaAgendamento"
+                value={formData.horaAgendamento}
+                onChange={handleChange}
+                min={horaMinima}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="form-group full">
+            <label><FileText size={16} /> ObservaÃ§Ãµes (opcional)</label>
+            <textarea
+              name="observacao"
+              rows="3"
+              value={formData.observacao}
+              onChange={handleChange}
+              placeholder="Alguma informaÃ§Ã£o adicional?"
+            />
+          </div>
+
+          <button type="submit" disabled={loading} className="btn-enviar">
+            {loading ? 'Enviando...' : <><Calendar size={18} /> Solicitar Agendamento</>}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default AgendarServico;
+
+===== C:\Users\Nemo\Desktop\erp-system\servicos-api-frontend\src\components\EstatisticasServicos.js =====
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../api';
+import {
+  ArrowLeft,
+  BarChart,
+  RefreshCw,
+  List,
+  Clock,
+  CheckCircle,
+  Check,
+  XCircle,
+  TrendingUp,
+  Percent
+} from 'lucide-react';
+import './EstatisticasServicos.css';
+
+const EstatisticasServicos = () => {
+  const [stats, setStats] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [agendamentos, setAgendamentos] = useState([]);
+
+  const limparEmojis = (texto) => {
+    if (!texto) return '-';
+    return texto.replace(/[^\w\s]/g, '').trim();
+  };
+
+  useEffect(() => {
+    carregarDados();
+  }, []);
+
+  const carregarDados = async () => {
+    setLoading(true);
+    try {
+      const [statsRes, agendamentosRes] = await Promise.all([
+        api.get('/servicos/estatisticas'),
+        api.get('/servicos/agendamentos')
+      ]);
+      setStats(statsRes.data);
+      setAgendamentos(agendamentosRes.data || []);
+    } catch (error) {
+      console.error('Erro ao carregar dados:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const servicosPorTipo = {};
+  agendamentos.forEach(a => { if (a.tipoServico) { servicosPorTipo[a.tipoServico] = (servicosPorTipo[a.tipoServico] || 0) + 1; } });
+  const topServicos = Object.entries(servicosPorTipo).sort((a, b) => b[1] - a[1]).slice(0, 5);
+
+  if (loading) {
+    return <div className="estatisticas-loading">Carregando estatÃ­sticas...</div>;
+  }
+
+  return (
+    <div className="estatisticas-container">
+      <div className="estatisticas-header">
+        <Link to="/servicos">
+          <button className="btn-voltar">
+            <ArrowLeft size={18} />
+            Voltar ao Menu
+          </button>
+        </Link>
+        <h1>
+          <BarChart size={28} className="icon-header" />
+          EstatÃ­sticas dos ServiÃ§os
+        </h1>
+        <button className="btn-atualizar" onClick={carregarDados}>
+          <RefreshCw size={18} />
+          Atualizar
+        </button>
+      </div>
+
+      {/* Cards de estatÃ­sticas */}
+      <div className="stats-grid">
+        <div className="stat-card stat-total">
+          <div className="stat-icon"><List size={24} /></div>
+          <div className="stat-info">
+            <span className="stat-label">Total de Agendamentos</span>
+            <span className="stat-value">{stats?.TOTAL || 0}</span>
+          </div>
+        </div>
+        <div className="stat-card stat-pendente">
+          <div className="stat-icon"><Clock size={24} /></div>
+          <div className="stat-info">
+            <span className="stat-label">Pendentes</span>
+            <span className="stat-value">{stats?.PENDENTE || 0}</span>
+          </div>
+        </div>
+        <div className="stat-card stat-confirmado">
+          <div className="stat-icon"><CheckCircle size={24} /></div>
+          <div className="stat-info">
+            <span className="stat-label">Confirmados</span>
+            <span className="stat-value">{stats?.CONFIRMADO || 0}</span>
+          </div>
+        </div>
+        <div className="stat-card stat-concluido">
+          <div className="stat-icon"><Check size={24} /></div>
+          <div className="stat-info">
+            <span className="stat-label">ConcluÃ­dos</span>
+            <span className="stat-value">{stats?.CONCLUIDO || 0}</span>
+          </div>
+        </div>
+        <div className="stat-card stat-cancelado">
+          <div className="stat-icon"><XCircle size={24} /></div>
+          <div className="stat-info">
+            <span className="stat-label">Cancelados</span>
+            <span className="stat-value">{stats?.CANCELADO || 0}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Top 5 ServiÃ§os */}
+      <div className="top-servicos-card">
+        <h2>
+          <TrendingUp size={20} className="icon-title" />
+          Top 5 ServiÃ§os Mais Solicitados
+        </h2>
+        <div className="top-servicos-list">
+          {topServicos.length === 0 ? (
+            <div className="sem-dados">Nenhum serviÃ§o solicitado ainda</div>
+          ) : (
+            topServicos.map(([servico, qtd], idx) => (
+              <div key={idx} className="top-servico-item">
+                <span className="top-posicao">#{idx + 1}</span>
+                <span className="top-nome">{limparEmojis(servico)}</span>
+                <span className="top-qtd">{qtd} solicitaÃ§Ã£o(Ãµes)</span>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+
+      {/* Taxa de ConversÃ£o */}
+      <div className="conversao-card">
+        <h2>
+          <Percent size={20} className="icon-title" />
+          Taxa de ConversÃ£o
+        </h2>
+        <div className="conversao-grid">
+          <div className="conversao-item">
+            <div className="conversao-label">Confirmados / Total</div>
+            <div className="conversao-valor verde">
+              {stats?.TOTAL ? Math.round((stats.CONFIRMADO / stats.TOTAL) * 100) : 0}%
+            </div>
+          </div>
+          <div className="conversao-item">
+            <div className="conversao-label">ConcluÃ­dos / Confirmados</div>
+            <div className="conversao-valor azul">
+              {stats?.CONFIRMADO ? Math.round((stats.CONCLUIDO / stats.CONFIRMADO) * 100) : 0}%
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default EstatisticasServicos;
+
+===== C:\Users\Nemo\Desktop\erp-system\servicos-api-frontend\src\components\GerenciarAgendamentos.js =====
+import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
+import api from '../api';
+import {
+  ArrowLeft,
+  Calendar,
+  RefreshCw,
+  Clock,
+  CheckCircle,
+  XCircle,
+  List,
+  Scissors,
+  FileText,
+  Check,
+  X
+} from 'lucide-react';
+import './GerenciarAgendamentos.css';
+
+const GerenciarAgendamentos = () => {
+  const [agendamentos, setAgendamentos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [filtroStatus, setFiltroStatus] = useState('TODOS');
+  const [stats, setStats] = useState({ pendentes: 0, confirmados: 0, concluidos: 0, cancelados: 0 });
+
+  const limparEmojis = (texto) => {
+    if (!texto) return '-';
+    return texto.replace(/[^\w\s]/g, '').trim();
+  };
+
+  useEffect(() => {
+    carregarAgendamentos();
+  }, []);
+
+  const carregarAgendamentos = async () => {
+    setLoading(true);
+    try {
+      const response = await api.get('/servicos/agendamentos');
+      const dados = response.data || [];
+      setAgendamentos(dados);
+      setStats({
+        pendentes: dados.filter(a => a.status === 'PENDENTE').length,
+        confirmados: dados.filter(a => a.status === 'CONFIRMADO').length,
+        concluidos: dados.filter(a => a.status === 'CONCLUIDO').length,
+        cancelados: dados.filter(a => a.status === 'CANCELADO').length
+      });
+    } catch (error) {
+      console.error('Erro ao carregar agendamentos:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const atualizarStatus = async (id, novoStatus) => {
+    try {
+      await api.put('/servicos/agendamentos/' + id + '/status', { status: novoStatus });
+      carregarAgendamentos();
+    } catch (error) {
+      console.error('Erro ao atualizar status:', error);
+      alert('Erro ao atualizar status');
+    }
+  };
+
+  const getStatusBadge = (status) => {
+    const styles = {
+      PENDENTE: { bg: 'rgba(245, 158, 11, 0.2)', color: '#fbbf24', icon: <Clock size={14} />, text: 'Pendente' },
+      CONFIRMADO: { bg: 'rgba(34, 197, 94, 0.2)', color: '#22c55e', icon: <CheckCircle size={14} />, text: 'Confirmado' },
+      CONCLUIDO: { bg: 'rgba(59, 130, 246, 0.2)', color: '#60a5fa', icon: <Check size={14} />, text: 'ConcluÃ­do' },
+      CANCELADO: { bg: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', icon: <XCircle size={14} />, text: 'Cancelado' }
+    };
+    return styles[status] || styles.PENDENTE;
+  };
+
+  const formatarDataHora = (data, hora) => {
+    if (!data) return '-';
+    return new Date(data).toLocaleDateString('pt-BR') + ' Ã s ' + (hora || '--:--');
+  };
+
+  const agendamentosFiltrados = agendamentos.filter(a => {
+    if (filtroStatus === 'TODOS') return true;
+    return a.status === filtroStatus;
+  });
+
+  if (loading) {
+    return (
+      <div className="gerenciar-loading">
+        Carregando agendamentos...
+      </div>
+    );
+  }
+
+  return (
+    <div className="gerenciar-container">
+      <div className="gerenciar-header">
+        <Link to="/servicos">
+          <button className="btn-voltar">
+            <ArrowLeft size={18} />
+            Voltar ao Menu
+          </button>
+        </Link>
+        <h1>
+          <Calendar size={28} className="icon-header" />
+          Gerenciar Agendamentos
+        </h1>
+        <button className="btn-atualizar" onClick={carregarAgendamentos}>
+          <RefreshCw size={18} />
+          Atualizar
+        </button>
+      </div>
+
+      {/* Cards de estatÃ­sticas */}
+      <div className="stats-grid">
+        <div className="stat-card stat-pendente">
+          <div className="stat-icon"><Clock size={24} /></div>
+          <div className="stat-info">
+            <span className="stat-label">Pendentes</span>
+            <span className="stat-value">{stats.pendentes}</span>
+          </div>
+        </div>
+        <div className="stat-card stat-confirmado">
+          <div className="stat-icon"><CheckCircle size={24} /></div>
+          <div className="stat-info">
+            <span className="stat-label">Confirmados</span>
+            <span className="stat-value">{stats.confirmados}</span>
+          </div>
+        </div>
+        <div className="stat-card stat-concluido">
+          <div className="stat-icon"><Check size={24} /></div>
+          <div className="stat-info">
+            <span className="stat-label">ConcluÃ­dos</span>
+            <span className="stat-value">{stats.concluidos}</span>
+          </div>
+        </div>
+        <div className="stat-card stat-cancelado">
+          <div className="stat-icon"><XCircle size={24} /></div>
+          <div className="stat-info">
+            <span className="stat-label">Cancelados</span>
+            <span className="stat-value">{stats.cancelados}</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Filtros */}
+      <div className="filtros-container">
+        {['TODOS', 'PENDENTE', 'CONFIRMADO', 'CONCLUIDO', 'CANCELADO'].map(status => {
+          let icon, label;
+          switch(status) {
+            case 'TODOS': icon = <List size={16} />; label = 'Todos'; break;
+            case 'PENDENTE': icon = <Clock size={16} />; label = 'Pendentes'; break;
+            case 'CONFIRMADO': icon = <CheckCircle size={16} />; label = 'Confirmados'; break;
+            case 'CONCLUIDO': icon = <Check size={16} />; label = 'ConcluÃ­dos'; break;
+            case 'CANCELADO': icon = <XCircle size={16} />; label = 'Cancelados'; break;
+            default: icon = null; label = status;
+          }
+          return (
+            <button
+              key={status}
+              className={`filtro-btn ${filtroStatus === status ? 'active' : ''}`}
+              onClick={() => setFiltroStatus(status)}
+            >
+              {icon} {label}
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Lista de agendamentos */}
+      <div className="agendamentos-list">
+        {agendamentosFiltrados.length === 0 ? (
+          <div className="sem-dados">Nenhum agendamento encontrado</div>
+        ) : (
+          agendamentosFiltrados.map(a => {
+            const statusStyle = getStatusBadge(a.status);
+            return (
+              <div key={a.id} className="agendamento-card">
+                <div className="agendamento-topo">
+                  <div>
+                    <div className="cliente-nome">{a.clienteNome}</div>
+                    <div className="cliente-contato">
+                      {a.clienteEmail} | {a.clienteTelefone || 'Sem telefone'}
+                    </div>
+                  </div>
+                  <div className="status-badge" style={{ background: statusStyle.bg, color: statusStyle.color }}>
+                    {statusStyle.icon} {statusStyle.text}
+                  </div>
+                </div>
+
+                <div className="agendamento-detalhes">
+                  <div>
+                    <Calendar size={14} /> {formatarDataHora(a.dataAgendamento, a.horaAgendamento)}
+                  </div>
+                  <div>
+                    <Scissors size={14} /> {limparEmojis(a.tipoServico)}
+                  </div>
+                  {a.observacao && (
+                    <div>
+                      <FileText size={14} /> {a.observacao}
+                    </div>
+                  )}
+                </div>
+
+                <div className="agendamento-acoes">
+                  {a.status === 'PENDENTE' && (
+                    <>
+                      <button
+                        className="btn-confirmar"
+                        onClick={() => atualizarStatus(a.id, 'CONFIRMADO')}
+                      >
+                        <CheckCircle size={16} /> Confirmar
+                      </button>
+                      <button
+                        className="btn-recusar"
+                        onClick={() => atualizarStatus(a.id, 'CANCELADO')}
+                      >
+                        <X size={16} /> Recusar
+                      </button>
+                    </>
+                  )}
+                  {a.status === 'CONFIRMADO' && (
+                    <button
+                      className="btn-concluir"
+                      onClick={() => atualizarStatus(a.id, 'CONCLUIDO')}
+                    >
+                      <Check size={16} /> Marcar como ConcluÃ­do
+                    </button>
+                  )}
+                  {a.status === 'CONCLUIDO' && (
+                    <span className="status-finalizado">âœ“ ServiÃ§o finalizado</span>
+                  )}
+                  {a.status === 'CANCELADO' && (
+                    <span className="status-cancelado">âœ• SolicitaÃ§Ã£o recusada</span>
+                  )}
+                </div>
+              </div>
+            );
+          })
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default GerenciarAgendamentos;
+
+===== C:\Users\Nemo\Desktop\erp-system\servicos-api-frontend\src\components\MenuServicos.js =====
+import React from 'react';
+import { Link } from 'react-router-dom';
+import { Clipboard, Settings, BarChart } from 'lucide-react';
+
+const MenuServicos = () => {
+  return (
+    <div style={{
+      minHeight: '100vh',
+      padding: '56px 24px',
+      background: 'radial-gradient(circle at top left, rgba(59, 130, 246, 0.25), transparent 35%), radial-gradient(circle at bottom right, rgba(139, 92, 246, 0.15), transparent 30%), linear-gradient(135deg, #07111f 0%, #0f172a 45%, #111827 100%)',
+      color: '#f8fafc',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center'
+    }}>
+      <div style={{ textAlign: 'center', marginBottom: '56px' }}>
+        <span style={{
+          display: 'inline-block',
+          padding: '8px 18px',
+          borderRadius: '999px',
+          background: 'rgba(59, 130, 246, 0.15)',
+          border: '1px solid rgba(59, 130, 246, 0.45)',
+          color: '#60a5fa',
+          fontWeight: 800,
+          letterSpacing: '0.08em',
+          textTransform: 'uppercase',
+          marginBottom: '18px'
+        }}>GesteX</span>
+        <h1 style={{
+          margin: 0,
+          fontSize: 'clamp(3rem, 8vw, 6rem)',
+          lineHeight: 0.95,
+          fontWeight: 1000,
+          letterSpacing: '0.08em',
+          color: '#ffffff',
+          textShadow: '0 14px 45px rgba(59, 130, 246, 0.20)'
+        }}>GESTÃƒO DE SERVIÃ‡OS</h1>
+        <p style={{
+          margin: '22px auto 0',
+          maxWidth: '700px',
+          fontSize: '1.12rem',
+          color: '#cbd5e1'
+        }}>Agendamentos, controle e acompanhamento</p>
+      </div>
+
+      <div style={{
+        width: '100%',
+        maxWidth: '1100px',
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
+        gap: '28px'
+      }}>
+        <Link to="/agendar" style={{ textDecoration: 'none' }}>
+          <div style={{
+            minHeight: '220px',
+            padding: '28px 22px',
+            borderRadius: '26px',
+            background: 'rgba(15, 23, 42, 0.82)',
+            border: '1px solid rgba(148, 163, 184, 0.22)',
+            boxShadow: '0 24px 70px rgba(0, 0, 0, 0.38)',
+            backdropFilter: 'blur(14px)',
+            transition: 'all 0.18s ease',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center'
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'translateY(-8px)';
+            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.6)';
+            e.currentTarget.style.boxShadow = '0 34px 90px rgba(0, 0, 0, 0.52)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.22)';
+            e.currentTarget.style.boxShadow = '0 24px 70px rgba(0, 0, 0, 0.38)';
+          }}>
+            <div style={{ marginBottom: '20px', color: '#60a5fa' }}>
+              <Clipboard size={48} strokeWidth={2} />
+            </div>
+            <h2 style={{ margin: '0 0 12px', fontSize: '1.5rem', color: '#ffffff' }}>Agendar ServiÃ§o</h2>
+            <span style={{ display: 'inline-block', marginTop: '12px', fontWeight: 900, color: '#60a5fa', letterSpacing: '0.02em' }}>Acessar â†’</span>
+          </div>
+        </Link>
+
+        <Link to="/gerenciar" style={{ textDecoration: 'none' }}>
+          <div style={{
+            minHeight: '220px',
+            padding: '28px 22px',
+            borderRadius: '26px',
+            background: 'rgba(15, 23, 42, 0.82)',
+            border: '1px solid rgba(148, 163, 184, 0.22)',
+            boxShadow: '0 24px 70px rgba(0, 0, 0, 0.38)',
+            backdropFilter: 'blur(14px)',
+            transition: 'all 0.18s ease',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center'
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'translateY(-8px)';
+            e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.6)';
+            e.currentTarget.style.boxShadow = '0 34px 90px rgba(0, 0, 0, 0.52)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.22)';
+            e.currentTarget.style.boxShadow = '0 24px 70px rgba(0, 0, 0, 0.38)';
+          }}>
+            <div style={{ marginBottom: '20px', color: '#60a5fa' }}>
+              <Settings size={48} strokeWidth={2} />
+            </div>
+            <h2 style={{ margin: '0 0 12px', fontSize: '1.5rem', color: '#ffffff' }}>Gerenciar</h2>
+            <span style={{ display: 'inline-block', marginTop: '12px', fontWeight: 900, color: '#60a5fa', letterSpacing: '0.02em' }}>Acessar â†’</span>
+          </div>
+        </Link>
+
+        <Link to="/estatisticas" style={{ textDecoration: 'none' }}>
+          <div style={{
+            minHeight: '220px',
+            padding: '28px 22px',
+            borderRadius: '26px',
+            background: 'rgba(15, 23, 42, 0.82)',
+            border: '1px solid rgba(148, 163, 184, 0.22)',
+            boxShadow: '0 24px 70px rgba(0, 0, 0, 0.38)',
+            backdropFilter: 'blur(14px)',
+            transition: 'all 0.18s ease',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            textAlign: 'center'
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.transform = 'translateY(-8px)';
+            e.currentTarget.style.borderColor = 'rgba(139, 92, 246, 0.6)';
+            e.currentTarget.style.boxShadow = '0 34px 90px rgba(0, 0, 0, 0.52)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.22)';
+            e.currentTarget.style.boxShadow = '0 24px 70px rgba(0, 0, 0, 0.38)';
+          }}>
+            <div style={{ marginBottom: '20px', color: '#60a5fa' }}>
+              <BarChart size={48} strokeWidth={2} />
+            </div>
+            <h2 style={{ margin: '0 0 12px', fontSize: '1.5rem', color: '#ffffff' }}>Acompanhamento</h2>
+            <span style={{ display: 'inline-block', marginTop: '12px', fontWeight: 900, color: '#60a5fa', letterSpacing: '0.02em' }}>Acessar â†’</span>
+          </div>
+        </Link>
+      </div>
+    </div>
+  );
+};
+
+export default MenuServicos;
+
